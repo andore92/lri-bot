@@ -1,11 +1,17 @@
+// ----------------------------------------------Global Variables-------------------------------------------------------------
+// our requires for our node packages being stored in variables, along with the
+// js file containing our api keys
 var twitter = require("twitter");
 var spotifyWebApi = require('spotify-web-api-node');
 var keys = require("./keys.js");
 var request = require("request");
+var fs = require("fs");
 
+// grabbing the keys in keys.js and storing them in variables 
 var twitterKeys = keys.twitterKeys
 var spotifyKeys = keys.spotifyKeys
 
+// sets up twitter and spotify keys within this file
 var userTwit = new twitter ({
 	consumer_key: twitterKeys.consumer_key,
   	consumer_secret: twitterKeys.consumer_secret,
@@ -17,28 +23,50 @@ var userSpotify = new spotifyWebApi ({
 	clientId : spotifyKeys.clientId,
   	clientSecret : spotifyKeys.clientSecret,
 })
-userSpotify.setAccessToken('BQB_3kJANp3C7NtSIonEXh8N1Mcg9ohVdA9smbEPwOsQGm2UCoKib6PnqqMur7vNoQkAK6vJgwMverxFO1CZ4w5JeJiL-kmevj7C472jG_bxzI6UpxsHgqzndIqTfvFSUOy0KUMgxeQDcNxCoA');
+// spotify web api package requires we set an access token
+userSpotify.setAccessToken('BQBkYkg8Mb7B5k5JZYTRRF9RUCTqnZ8fEk8WMT59fz4H9reW4zI7CCmTIHzUOt-cVTIifl6wmch5d83OZxvfk6V_0POxTSNm6I7VhGjc6diwq9oGQ7yUkgojKClF5AFriF_ULLrc-6ykNinHpw');
 
+// stores our node argument in node in variables
 var apiArg = process.argv[2];
 var mediaArg = JSON.stringify(process.argv[3]);
 
+// stores our query url for use with the omdb api
 var queryUrl = "http://www.omdbapi.com/?t=" + mediaArg + "&y=&plot=short&apikey=ca876342";
 
 
-
+// paramaters stored for the twitter api
 var twitterParams = {screen_name: 'fakegeekguy', count: '20'};
 
-if (apiArg === "my-tweets") {
-		userTwit.get('statuses/user_timeline', twitterParams, function(error, tweets, response) {
+
+//----------------------------------------------------FUNCTIONS---------------------------------------------------------------
+
+// function we use to search with teh twitter api
+function twitterSearch (){
+	userTwit.get('statuses/user_timeline', twitterParams, function(error, tweets, response) {
 	  if (!error) {
 	  	for(i=0; i<tweets.length; i++) {
 	    	console.log([i+1] + ": " + tweets[i].text);
-	  	}
+	  	}fs.appendFile("log.txt", tweets.text, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else {
+    console.log("Content Added!");
+  }
+
+});
+
 	  } else {
 	  	console.log(error);
 	  }
 	});
-} else if (apiArg === "spotify-this-song"){
+}
+// function we use to search with the spotify api
+function spotifySearch() {
 	userSpotify.searchTracks('track:' + mediaArg, {limit: 1})
   .then(function(data) {
   	for (i=0; i<data.body.tracks.items[0].artists.length; i++) {
@@ -53,12 +81,16 @@ if (apiArg === "my-tweets") {
     
     console.log("Album: " + data.body.tracks.items[0].album.name )
   }, function(err) {
+  	console.log(err);
     console.log("Something went wrong! Why don't you try this song?");
     console.log("Artist name: Ace of Base");
     console.log("Song name: The Sign");
     console.log("Preview URL: https://p.scdn.co/mp3-preview/4c463359f67dd3546db7294d236dd0ae991882ff?cid=8897482848704f2a8f8d7c79726a70d4");
   });
-} else if (apiArg === "movies-this") {
+}
+
+// function we use to search the omdb api 
+function omdbSearch() {
 	if (mediaArg != null) {
 		request(queryUrl, function(error, response, body) {
 
@@ -80,7 +112,7 @@ if (apiArg === "my-tweets") {
 	  }
 	 });
 	}	else{
-	  	
+	  	console.log("You didn't enter a movie title, may I suggest this one?")
 	  	console.log("Title: Mr. Nobody");
 	    console.log("Release Year: 2013");
 	    console.log("IMDB Rating: 7.9/10");
@@ -90,7 +122,42 @@ if (apiArg === "my-tweets") {
 	    console.log("Actors: Jared Leto, Sarah Polley, Diane Kruger, Linh Dan Pham");
 	    console.log("Website: http://www.magpictures.com/mrnobody/");
 	  }
+}
+
+// --------------------------------------------------Argument Inputs------------------------------------------------------------------
+// handles the arguments being sent to our bot
+if (apiArg === "my-tweets") {
+		//calls our twitterSearch function 
+		twitterSearch();
+} else if (apiArg === "spotify-this-song"){
+	// calls our spotifySearch fucntion
+	spotifySearch();
+	
+} 
+else if (apiArg === "movies-this") {
+	// calls our omdbSearch function
+	omdbSearch();
 	
 } else if (apiArg === "do-what-it-says") {
-	
+	// reads our random.txt file
+	fs.readFile("random.txt", "utf8", function(error, data) {
+
+  
+  if (error) {
+    return console.log(error);
+  }
+
+  // splits the data on random.txt into an array
+  var dataArr = data.split(",");
+
+  
+  // changes mediaArg's value to that of the object at index [1] of the data.Arr
+  mediaArg = dataArr[1];
+  
+  // calls our spotifySearch function, which will take in the value mediaArg set at line 142
+  // and use that value in the search. 
+  spotifySearch();
+
+});
+
 }
