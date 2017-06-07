@@ -1,0 +1,19 @@
+{
+  "name": "lri-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "liri.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andore92/lri-bot.git"
+  },
+  "author": "Andrew Sadowski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andore92/lri-bot/issues"
+  },
+  "homepage": "https://github.com/andore92/lri-bot#readme"
+}
