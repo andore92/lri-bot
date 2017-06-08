@@ -19,12 +19,17 @@ var userTwit = new twitter ({
   	access_token_secret: twitterKeys.access_token_secret,
 })
 
+
 var userSpotify = new spotifyWebApi ({
 	clientId : spotifyKeys.clientId,
   	clientSecret : spotifyKeys.clientSecret,
 })
+
 // spotify web api package requires we set an access token
-userSpotify.setAccessToken('BQBkYkg8Mb7B5k5JZYTRRF9RUCTqnZ8fEk8WMT59fz4H9reW4zI7CCmTIHzUOt-cVTIifl6wmch5d83OZxvfk6V_0POxTSNm6I7VhGjc6diwq9oGQ7yUkgojKClF5AFriF_ULLrc-6ykNinHpw');
+// for some reason this token breaks frequently and I have to generate a new one 
+// from spotify's API console
+userSpotify.setAccessToken('BQCaePAi2yMHsCrkwZ9OQLsc1W7DofLCG6RAWBuF3vjtHwBRN2FWWfImUdjjDuMw1BjOqMkHZn0sIu_AS2DJz298Y3lyzzoMkeC-GYO3_uN0mDAX8cUjxkdr0pXTrZ1_tRzfTgSH3mQaFk0XdOfCMuckVJgr1IrBuTa-nQ');
+userSpotify.setRefreshToken('AQAskVBhyJRwJYCQPpDVw586k7dvXrqvUxGbxf6HXazw1zyIdv8ULCmw3gBF6Y84LOXYZBxxXTZLRL-_XEJcmn5rPVleAYSANbJoAZF7WZXlJqqsq_bY-gTY_lZP0-WwpLo');
 
 // stores our node argument in node in variables
 var apiArg = process.argv[2];
@@ -46,20 +51,7 @@ function twitterSearch (){
 	  if (!error) {
 	  	for(i=0; i<tweets.length; i++) {
 	    	console.log([i+1] + ": " + tweets[i].text);
-	  	}fs.appendFile("log.txt", tweets.text, function(err) {
-
-  // If an error was experienced we say it.
-  if (err) {
-    console.log(err);
-  }
-
-  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
-  else {
-    console.log("Content Added!");
-  }
-
-});
-
+	  	}
 	  } else {
 	  	console.log(error);
 	  }
@@ -160,4 +152,4 @@ else if (apiArg === "movies-this") {
 
 });
 
-}
+} 
